@@ -2,8 +2,8 @@ package com.example.camera_location;
 
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
-
-import java.util.List;
+import android.location.Location;
+import utils.Pair;
 
 public class Variable {
     private Variable(){}
@@ -16,4 +16,6 @@ public class Variable {
     public static boolean enterFromList;
     public static SQLiteOpenHelper helper;
     public static boolean hasInitialized = false;
+    public static Location location;
+    public static Pair<String, String> address;
 }

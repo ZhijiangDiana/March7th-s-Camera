@@ -25,6 +25,7 @@ import android.util.SparseArray;
 import android.view.*;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -67,6 +68,9 @@ public class CameraDemoActivity extends AppCompatActivity {
     private static final SparseArray<Integer> ORIENTATION = new SparseArray<>();
 
     CheckBox isAIRepaint;
+    TextView lat;
+    TextView lon;
+    TextView address;
 
     static {
         ORIENTATION.append(Surface.ROTATION_0, 90);
@@ -81,8 +85,14 @@ public class CameraDemoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_camera_demo);
         if(!Variable.hasInitialized) {
             Variable.helper = ImgSQLiteOpenHelper.getInstance(cameraDemoActivity);
+            new Thread(new GetLocation()).start();
             ListInit();
             Variable.hasInitialized = true;
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         textureView = findViewById(R.id.textureView);
@@ -90,11 +100,26 @@ public class CameraDemoActivity extends AppCompatActivity {
         btn_photo.setOnClickListener(OnClick);
         isAIRepaint = findViewById(R.id.isAIRepaint);
         isAIRepaint.setChecked(Variable.isAIRepaint);
+        // 刷新位置文本
+        refreshLocation();
+    }
+
+    private void refreshLocation() {
+        lat = findViewById(R.id.latitude);
+        lon = findViewById(R.id.longitude);
+        address = findViewById(R.id.address);
+        if(Variable.location != null && Variable.address != null) {
+            lat.setText("纬度：" + Variable.location.getLatitude());
+            lon.setText("经度：" + Variable.location.getLongitude());
+            address.setText(Variable.address.first + " " + Variable.address.second);
+        }
     }
 
     private final View.OnClickListener OnClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            // 刷新位置文本
+            refreshLocation();
             // 更新checked状态
             Variable.isAIRepaint = isAIRepaint.isChecked();
 
@@ -218,6 +243,9 @@ public class CameraDemoActivity extends AppCompatActivity {
     }
 
     public void getList(View view) {
+        // 刷新经纬度文本
+        refreshLocation();
+        // 转到浏览页面
         startActivity(new Intent(cameraDemoActivity, ImageList.class));
     }
 
@@ -242,7 +270,8 @@ public class CameraDemoActivity extends AppCompatActivity {
 //                file.mkdir();
 //            }
             String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-            String fileName = "IMG_" + timeStamp + ".jpg";
+            String locationStamp = "Lat-" + Variable.location.getLatitude() + "_" + "Lon-" + Variable.location.getLongitude();
+            String fileName = "IMG_" + timeStamp + "_" + locationStamp + ".jpg";
 
             //获取要保存的图片的位图
             Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length, null);
@@ -329,14 +358,10 @@ public class CameraDemoActivity extends AppCompatActivity {
 //    }
 
     private void openCamera() {
-        if (ContextCompat.checkSelfPermission(this,
-                android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this,
-                        android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
-                    new String[]{android.Manifest.permission.CAMERA,
-                            android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    1);
+                    new String[]{android.Manifest.permission.CAMERA, android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
             return;
         }
         try {

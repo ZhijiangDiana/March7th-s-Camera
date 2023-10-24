@@ -1,12 +1,16 @@
 package utils;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
+import android.provider.Settings;
 import android.util.Log;
 
 import java.io.IOException;
@@ -14,6 +18,7 @@ import java.util.List;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import androidx.core.app.ActivityCompat;
 
 /**
  * Created by Administrator on 2018/4/17.
@@ -32,27 +37,36 @@ public class GPSUtils {
         return instance;
     }
 
-    public Pair<String, String> getCountryCity(Context context) {
+    @SuppressLint("MissingPermission")
+    public Location getLatLon(Context context) {
+        Log.i("GPS: ", "getLatLon");
+        if(locationManager == null)
+            locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);        // 默认Android GPS定位实例
+
+        Location location = null;
+
+        // 检查权限
+        setPermission(context);
+
+//        location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);      // GPS芯片定位 需要开启GPS
+//        location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);      // 利用网络定位 需要开启GPS
+        location = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);      // 其他应用使用定位更新了定位信息 需要开启GPS
+        return location;
+    }
+
+    @SuppressLint("MissingPermission")
+    public Pair<String, String> getCountryProvince(Context context) {
         Log.i("GPS: ", "getProvince");
         if(locationManager == null)
             locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);        // 默认Android GPS定位实例
 
         Location location = null;
-        // 是否已经授权
-        if (context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            //判断GPS是否开启，没有开启，则开启
-//            if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
-//                //跳转到手机打开GPS页面
-//                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-//                //设置完成后返回原来的界面
-//                AppActivity.instance.startActivityForResult(intent,OPEN_GPS_CODE);
-//            }
-//
-//            location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);      // GPS芯片定位 需要开启GPS
-//            location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);      // 利用网络定位 需要开启GPS
-            location = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);      // 其他应用使用定位更新了定位信息 需要开启GPS
-        }
+        // 检查权限
+        setPermission(context);
+
+//        location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);      // GPS芯片定位 需要开启GPS
+//        location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);      // 利用网络定位 需要开启GPS
+        location = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);      // 其他应用使用定位更新了定位信息 需要开启GPS
 
         Pair<String, String> p = null;
         if(location != null) {
@@ -84,6 +98,28 @@ public class GPSUtils {
         for (Address ad : addList)
             location = new Pair<>(ad.getCountryName(), ad.getLocality());
         return location;
+    }
+    private void setPermission(Context context) {
+        // 是否已经授权
+        for(int i=0;i<5;i++) {
+            if (context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                    && context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                //判断GPS是否开启，没有开启，则开启
+                if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+                    //跳转到手机打开GPS页面
+                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    //设置完成后返回原来的界面
+                    ((Activity) context).startActivityForResult(intent,OPEN_GPS_CODE);
+                    continue;
+                }
+                return;
+            } else {
+                ActivityCompat.requestPermissions((Activity) context,
+                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
+            }
+        }
+        ((Activity) context).finish();
+        System.exit(-1);
     }
 }
 

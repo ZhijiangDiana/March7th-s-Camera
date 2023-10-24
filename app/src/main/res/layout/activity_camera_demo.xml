@@ -72,5 +72,36 @@
         android:onClick="getList"
         app:layout_constraintHorizontal_bias="0.321"/>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/latitude"
+        android:text="纬度：114.514"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="@id/longitude"
+        app:layout_constraintEnd_toEndOf="@id/center"
+        app:layout_constraintTop_toTopOf="@id/hGuideLine1"
+        app:layout_constraintStart_toStartOf="parent"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/longitude"
+        android:text="经度：191.9810"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="@id/hGuideLine2"
+        app:layout_constraintEnd_toEndOf="@id/center"
+        app:layout_constraintTop_toTopOf="@id/latitude"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/address"
+        android:text="中国 沈阳大街"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="@id/hGuideLine2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/hGuideLine1"
+        app:layout_constraintStart_toStartOf="@id/center"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
