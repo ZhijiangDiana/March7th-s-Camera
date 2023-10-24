@@ -15,4 +15,5 @@ public class Variable {
     public static boolean isAIRepaint;
     public static boolean enterFromList;
     public static SQLiteOpenHelper helper;
+    public static boolean hasInitialized = false;
 }

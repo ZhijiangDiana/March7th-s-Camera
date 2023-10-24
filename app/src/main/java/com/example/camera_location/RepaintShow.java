@@ -55,4 +55,8 @@ public class RepaintShow extends AppCompatActivity {
             Toast.makeText(RepaintShow.repaintShow, "保存成功！", Toast.LENGTH_SHORT).show();
         }
     }
+
+    public void rerepaint(View view) {
+        startActivity(new Intent(repaintShow, ImageShow.class));
+    }
 }

@@ -11,6 +11,13 @@
         android:orientation="horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        app:layout_constraintGuide_begin="80dp"
+        android:id="@+id/hGuideLine0"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         app:layout_constraintGuide_begin="651dp"
         android:id="@+id/hGuideLine1"/>
 
@@ -35,8 +42,20 @@
         android:scaleType="fitCenter"
         app:layout_constraintBottom_toBottomOf="@id/hGuideLine1"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toTopOf="@id/hGuideLine0"
         app:layout_constraintStart_toStartOf="parent"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/rerepaint"
+        android:text="重新生成"
+        android:backgroundTint="#ff0000"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/hGuideLine0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:onClick="rerepaint"/>
 
     <Button
         android:layout_width="wrap_content"
