@@ -4,6 +4,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.AbstractWindowedCursor;
+import android.database.Cursor;
+import android.database.CursorWindow;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.*;
@@ -76,7 +79,11 @@ public class CameraDemoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera_demo);
-        Variable.helper = ImgSQLiteOpenHelper.getInstance(cameraDemoActivity);
+        if(!Variable.hasInitialized) {
+            Variable.helper = ImgSQLiteOpenHelper.getInstance(cameraDemoActivity);
+            ListInit();
+            Variable.hasInitialized = true;
+        }
 
         textureView = findViewById(R.id.textureView);
         btn_photo = findViewById(R.id.btn_photo);
@@ -101,7 +108,7 @@ public class CameraDemoActivity extends AppCompatActivity {
                     @Override
                     public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
                         super.onCaptureCompleted(session, request, result);
-                        Toast.makeText(CameraDemoActivity.this, "拍照结束，相片已保存！", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CameraDemoActivity.this, "拍照结束！", Toast.LENGTH_SHORT).show();
                         unLockFocus();
                     }
                 };
@@ -263,8 +270,8 @@ public class CameraDemoActivity extends AppCompatActivity {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             thumbImg.compress(Bitmap.CompressFormat.JPEG, 100, baos);
             byte[] thumbData = baos.toByteArray();
-            SQLiteDatabase wdb = Variable.helper.getWritableDatabase();
             // 将图片写入数据库
+            SQLiteDatabase wdb = Variable.helper.getWritableDatabase();
             ContentValues cv = new ContentValues();
             cv.put("name", fileName);
             cv.put("img", data);
@@ -272,6 +279,11 @@ public class CameraDemoActivity extends AppCompatActivity {
 //            wdb.execSQL("INSERT INTO ImageDB(name, img, preview) VALUES ('"+Variable.rImageName+"', '"+data+"', '"+thumbData+"')");
             wdb.insert("ImageDB", null, cv);
             wdb.close();
+
+            // 写入List缓存
+            ImageList.allImg.add(new Bean(ImageList.allImg.size()+1, fileName, thumbImg));
+
+            //关闭image
             image.close();
         }
     }
@@ -393,6 +405,25 @@ public class CameraDemoActivity extends AppCompatActivity {
         handlerThread = new HandlerThread("myHandlerThread");
         handlerThread.start();
         mCameraHandler = new Handler(handlerThread.getLooper());
+    }
+
+    private void ListInit() {
+        ImageList.allImg = new ArrayList<>(114514);
+        SQLiteDatabase rdb = Variable.helper.getReadableDatabase();
+        Cursor cursor = rdb.rawQuery("SELECT * FROM ImageDB", null);
+        // Cursor窗口很大，你要忍一下
+        CursorWindow cw = new CursorWindow("test", 16777216);
+        AbstractWindowedCursor ac = (AbstractWindowedCursor) cursor;
+        ac.setWindow(cw);
+        while(cursor.moveToNext()){
+            int id = cursor.getInt(cursor.getColumnIndexOrThrow("_id"));
+            String imgName = cursor.getString(cursor.getColumnIndexOrThrow("name"));
+            byte[] data = cursor.getBlob(cursor.getColumnIndexOrThrow("preView"));
+            Bitmap preview = BitmapFactory.decodeByteArray(data, 0, data.length, new BitmapFactory.Options());
+            ImageList.allImg.add(new Bean(id, imgName, preview));
+        }
+        cursor.close();
+        rdb.close();
     }
 }
 

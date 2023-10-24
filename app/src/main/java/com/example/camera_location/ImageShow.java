@@ -92,13 +92,14 @@ public class ImageShow extends AppCompatActivity {
                     .connectTimeout(1919, TimeUnit.SECONDS)
                     .build();
 
+            // blue camera, blue_flower,
             json = new JSONObject();
             json.put("init_images", null);
             json.put("denoising_strength", 0.58);
             json.put("prompt", "(((one girl))), (rich in details), masterpiece, ((masterpiece)), breasts, looking_at_viewer, " +
                     "(short hair), multicolored_eyes, ((pink hair)), ((pink hair)), ((pink hair)), bangs, blue_eyes, (long locks:1.4), " +
-                    "(ribbon earrings), collarbone, white_shirt, long_sleeves, choker, flower, blue camera, blue_skirt, " +
-                    "blue_flower, critical angle, masterpiece, best quality, high quality, absurdres, shiny skin, " +
+                    "(ribbon earrings), collarbone, white_shirt, long_sleeves, choker, flower, blue_skirt, " +
+                    "critical angle, masterpiece, best quality, high quality, absurdres, shiny skin, " +
                     "colorful, dynamic pose, stunning art, best quality, hyper detailed, reflective hair, good lighting, " +
                     "ray tracing, depth of field, ultra-detailed, illustration, Amazing, fine detail, extremely detailed, " +
                     "beautiful detailed glow, intricate detail, highres, an extremely delicate and beautiful girl, " +
