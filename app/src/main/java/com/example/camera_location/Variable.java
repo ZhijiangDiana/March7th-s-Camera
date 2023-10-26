@@ -18,4 +18,6 @@ public class Variable {
     public static boolean hasInitialized = false;
     public static Location location;
     public static Pair<String, String> address;
+    public static String SDIP = "1.14.5.14";
+    public static String SDPort = "1919";
 }

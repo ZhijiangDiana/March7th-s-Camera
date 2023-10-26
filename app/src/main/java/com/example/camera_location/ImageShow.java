@@ -79,8 +79,8 @@ public class ImageShow extends AppCompatActivity {
 
     public class SDRepaint implements Runnable {
         OkHttpClient okpClient;
-        String ip = "http://192.168.192.121";
-        String port = ":7860";
+        String ip = "http://" + Variable.SDIP;
+        String port = Variable.SDPort;
         String img2imgAPI = "/sdapi/v1/img2img";
         JSONObject json;
         String path = CameraDemoActivity.cameraDemoActivity.getFilesDir().getPath().toString();
@@ -92,23 +92,23 @@ public class ImageShow extends AppCompatActivity {
                     .connectTimeout(1919, TimeUnit.SECONDS)
                     .build();
 
-            // blue camera, blue_flower,
+            // blue camera, blue_flower, dynamic pose,
             json = new JSONObject();
             json.put("init_images", null);
             json.put("denoising_strength", 0.58);
             json.put("prompt", "(((one girl))), (rich in details), masterpiece, ((masterpiece)), breasts, looking_at_viewer, " +
-                    "(short hair), multicolored_eyes, ((pink hair)), ((pink hair)), ((pink hair)), bangs, blue_eyes, (long locks:1.4), " +
+                    "(short hair), multicolored_eyes, ((pink hair)), bangs, blue_eyes, (long locks:1.4), " +
                     "(ribbon earrings), collarbone, white_shirt, long_sleeves, choker, flower, blue_skirt, " +
-                    "critical angle, masterpiece, best quality, high quality, absurdres, shiny skin, " +
-                    "colorful, dynamic pose, stunning art, best quality, hyper detailed, reflective hair, good lighting, " +
+                    "critical angle, masterpiece, best quality, high quality, absurdres, shiny skin, ((arms behind back)), " +
+                    "colorful, stunning art, best quality, hyper detailed, reflective hair, good lighting, " +
                     "ray tracing, depth of field, ultra-detailed, illustration, Amazing, fine detail, extremely detailed, " +
                     "beautiful detailed glow, intricate detail, highres, an extremely delicate and beautiful girl, " +
                     "beautiful detailed eyes, realistic, hdr, rounded eyes, detailed facial features, " +
                     "<lora:(Anime Person) march7th:0.8>");
             json.put("sampler_name", "DPM++ 2M Karras");
             json.put("batch_size", 1);
-            json.put("steps", 40);
-            json.put("cfg_scale", 10);
+            json.put("steps", 20);
+            json.put("cfg_scale", 8);
             json.put("width", 512);
             json.put("height", 768);
             json.put("negative_prompt", "red hair, horns, sketch by bad-artist, bad_prompt_version2, bad-hands-5, " +
@@ -156,7 +156,7 @@ public class ImageShow extends AppCompatActivity {
             }
 
             Request req = new Request.Builder()
-                    .url(ip + port + img2imgAPI)
+                    .url(ip + ":" +port + img2imgAPI)
                     .post(RequestBody.create(MediaType.parse("application/json;charset=utf-8"),
                             String.valueOf(json)))
                     .build();
